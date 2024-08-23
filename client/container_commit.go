@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"net/url"
 
 	"github.com/distribution/reference"
@@ -12,7 +13,7 @@ import (
 )
 
 // ContainerCommit applies changes to a container and creates a new tagged image.
-func (cli *Client) ContainerCommit(ctx context.Context, container string, options container.CommitOptions) (types.IDResponse, error) {
+func (cli *Client) ContainerCommit(ctx context.Context, container string, options container.CommitOptions, headers http.Header) (types.IDResponse, error) {
 	var repository, tag string
 	if options.Reference != "" {
 		ref, err := reference.ParseNormalizedNamed(options.Reference)
@@ -45,7 +46,7 @@ func (cli *Client) ContainerCommit(ctx context.Context, container string, option
 	}
 
 	var response types.IDResponse
-	resp, err := cli.post(ctx, "/commit", query, options.Config, nil)
+	resp, err := cli.post(ctx, "/commit", query, options.Config, headers)
 	defer ensureReaderClosed(resp)
 	if err != nil {
 		return response, err
